@@ -1,0 +1,58 @@
+name: build
+
+# Runs on every push and every pull request. A red build should block a merge —
+# turn that on in Settings -> Branches -> branch protection rules for main.
+on:
+  push:
+  pull_request:
+
+jobs:
+  api:
+    name: api (Java)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      # Maven is preinstalled on the runner, so this works whether or not the
+      # wrapper has been committed. Locally, use ./mvnw.
+      - name: build and test
+        working-directory: api
+        run: mvn -B -ntp verify
+
+  web:
+    name: web (Angular)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      # Once package-lock.json is committed, `npm ci` is faster and stricter —
+      # switch to it, and add `cache: npm` to the step above.
+      - name: install
+        working-directory: web
+        run: npm install
+      - name: production build
+        working-directory: web
+        run: npm run build
+
+  data:
+    name: data (Python)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      # Deliberately does not install the requirements: this is a fast syntax check,
+      # not a test run. If you write tests, add a step that installs and runs them.
+      - name: syntax check
+        run: python -m compileall -q data
+
+  # TODO deploying the dashboard from here on a merge to main is the stretch goal.
+  # Look up the Vercel GitHub integration, or the Vercel CLI with a token stored in
+  # Settings -> Secrets and variables -> Actions. Never put a token in this file.

@@ -1,0 +1,29 @@
+# Java
+api/target/
+!api/.mvn/wrapper/maven-wrapper.jar
+
+# Node / Angular
+web/node_modules/
+web/dist/
+web/.angular/
+
+# Python
+data/.venv/
+**/__pycache__/
+*.pyc
+
+# secrets — nothing below this line should ever reach GitHub
+.env
+data/.env
+web/.env
+*serviceAccount*.json
+*firebase-adminsdk*.json
+
+# editors and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# deploy tooling
+.vercel

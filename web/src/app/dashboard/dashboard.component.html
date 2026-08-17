@@ -1,0 +1,60 @@
+<h1>Sessions</h1>
+
+<p class="hint">
+  This tile calls <code>/api/sessions</code> on the Spring API. The API returns a
+  hardcoded example until Day 2, when the same call starts returning real data and
+  nothing in here changes. That is the point of agreeing the shape first.
+</p>
+
+<section class="tile">
+  @if (state === 'loading') {
+    <p class="state">Loading…</p>
+  }
+
+  @if (state === 'error') {
+    <p class="state error">
+      Could not reach the API at {{ apiBaseUrl }}. Is it running, and have you
+      allowed this origin in the API's CORS configuration?
+    </p>
+  }
+
+  @if (state === 'empty') {
+    <p class="state">No sessions found.</p>
+  }
+
+  @if (state === 'ready') {
+    <table>
+      <thead>
+        <tr>
+          <th>Key</th>
+          <th>Session</th>
+          <th>Circuit</th>
+          <th>Country</th>
+          <th>Year</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (session of sessions; track session.sessionKey) {
+          <tr>
+            <td>{{ session.sessionKey }}</td>
+            <td>{{ session.sessionName }}</td>
+            <td>{{ session.circuit }}</td>
+            <td>{{ session.country }}</td>
+            <td>{{ session.year }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>
+
+<!--
+  TODO three more tiles, and one filter that visibly changes at least two of them.
+
+  chart.js is already installed. There is no Angular wrapper for it on purpose —
+  one fewer library whose version has to line up. Give a <canvas> an ID or a
+  ViewChild, and construct a Chart against it once the data arrives.
+
+  Before you call a tile done: turn the API off and look at it, shrink the window
+  to 360px wide, and tab through it with the keyboard.
+-->
