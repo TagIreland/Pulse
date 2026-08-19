@@ -20,8 +20,8 @@ morning and you have your backlog.
 |---|---|---|
 | **Builds** | A Spring Boot REST API in Java, and an Angular dashboard that consumes it. | A Postgres database, a Python job that fills it, and one prediction published to Firebase. |
 | **Owns the platforms** | GitHub, GitHub Actions, Vercel. | Supabase (Postgres), Firebase, the OpenF1 API. |
-| **Skills you will use** | Java, Spring Boot, REST. Angular, TypeScript, components and services. Git — branches, pull requests, reviews. GitHub Actions — build and deploy on push. Layered architecture and why the layers exist. | SQL — joins, aggregates, views. Postgres — tables, keys, indexes. Reading and paging a REST API. Normalisation — turning messy JSON into proper tables. Python and scikit-learn for one prediction. |
-| **By Friday you can say** | I built and shipped a Java API and an Angular front end, in a real Git workflow, deployed by a pipeline I set up. | I sourced live data, designed and normalised the database it lives in, wrote the queries the application runs on, and put a prediction of my own on the screen. |
+| **Skills you will use** | Java, Spring Boot, REST. Angular, TypeScript, components and services. Git — branches, pull requests, reviews. GitHub Actions — build and deploy on push. Layered architecture and why the layers exist. | SQL — joins, aggregates, views. Postgres — tables, keys, indexes. Reading and paging a REST API. Normalisation — turning messy JSON into proper tables. Python and scikit-learn for one ML prediction. |
+| **By Friday you can say** | I built and shipped a Java API and an Angular front end, in a real Git workflow, deployed by a pipeline I set up. | I sourced live data, designed and normalised the database it lives in, wrote the queries the application runs on, and put a ML prediction of my own on the screen. |
 
 Roles inside each team: split the work on the first morning and write it on the whiteboard.
 With two people in a team, one takes the back end and one the front end (development), or
@@ -49,7 +49,6 @@ returns plain JSON, and no key is needed for the historical data you will be usi
 **First job, before you write anything:** read the documentation at openf1.org and get one
 real response back in Postman. Find out what the endpoints are actually called, what
 parameters they take, how you page through a large response, and what one record looks like.
-Twenty minutes, and it shapes every decision after it.
 
 ```bash
 # check these against the live docs rather than trusting this file
@@ -65,7 +64,7 @@ curl "https://api.openf1.org/v1/stints?session_key=<key>"
 - Pit stops — who stopped, on which lap, and for how long.
 - Weather against pace — did track temperature move lap times?
 - Race control — the flags and safety cars, against where they fell in the session.
-- **Predicted against actual lap time.** This is the data team's prediction tile, so make it one of your four.
+- **Predicted against actual lap time.** This is the data team's ML prediction tile, so make it one of your four.
 
 **Then agree three things, together, and write them down:**
 
@@ -73,8 +72,7 @@ curl "https://api.openf1.org/v1/stints?session_key=<key>"
 2. What tables the database needs to answer them.
 3. What the API endpoints are called and what shape they return.
 
-On the whiteboard and in `AGREEMENT.md`. That is the only agreement the two teams need,
-it takes about half an hour, and everything after it runs in parallel.
+On paper and in `AGREEMENT.md`. That is the only agreement the two teams need.
 
 ---
 
@@ -84,7 +82,7 @@ Three architecture rules, and the reason for each:
 
 - **The Angular app never talks to the database.** Only to the API. If the front end holds a database password, you have just published your database to every visitor.
 - **The API reads views, not raw tables.** The data team publishes a view for each thing the dashboard needs. If the API has to join five tables to answer a question, that logic belongs in the database where there is one copy of it.
-- **The prediction goes to Firebase, not through the API.** It is calculated once by a Python job and published as a small document the Angular app reads directly. This is a real pattern — pre-compute the expensive thing, serve it cheaply — and it gives the data team its own route to the screen.
+- **The ML prediction goes to Firebase, not through the API.** It is calculated once by a Python job and published as a small document the Angular app reads directly. This is a real pattern — pre-compute the expensive thing, serve it cheaply — and it gives the data team its own route to the screen.
 
 ---
 
@@ -96,7 +94,7 @@ deliberate choices stop that happening here.
 1. **The shapes are agreed in the first hour.** Table names and endpoint shapes, written down. That is the only dependency between the teams and it is settled before lunch on Day 1.
 2. **The development team starts with hardcoded responses.** Your first endpoint returns a fixed example in the agreed shape. The Angular app is built, styled and deployed against that while the database is still being designed. Swapping in the real query later is a one-line change.
 3. **The data team starts with raw tables and plain SQL.** You need nobody's API to load data and query it. You will be running real queries on real data on Day 1 afternoon.
-4. **Firebase is the data team's own lane to the dashboard.** You publish your prediction there and it appears on screen without going through anyone else's code.
+4. **Firebase is the data team's own lane to the dashboard.** You publish your ML prediction there and it appears on screen without going through anyone else's code.
 
 If you are ever blocked for more than ten minutes waiting on the other team, that is a
 standup item, not something to sit with.
@@ -107,22 +105,21 @@ standup item, not something to sit with.
 
 Nothing is installed. Work through this from the top; it takes about ninety minutes and
 a facilitator will be circulating the whole time. If an installer is blocked by your
-laptop or the network, say so straight away rather than fighting it — there is a
-browser-based fallback.
+laptop or the network, say so straight away rather than fighting it.
 
 ### Accounts — both teams
 
-- **GitHub** — create the account and accept the invitation to the sprint organisation.
-- **Your licensed AI assistant**, signed into your editor. Check it actually completes a line before you move on.
+- **GitHub** — create an account using your Accenture email (one person forks the repository and sends an invitation to the rest of the group).
+- **Your licensed AI assistant**, signed into your IDE. Check it actually responds before you move on.
 
 ### Accounts — development team
 
-- **Vercel** — sign in with GitHub. This will host the Angular app.
+- **Vercel** — one person signs in with GitHub and creates the project (nominate this person as a group). The free Hobby plan is personal, so only one account owns the deployment. Everyone else contributes by pushing to the repo — Vercel picks up the push via GitHub and deploys automatically. The others do not need a Vercel account.
 
 ### Accounts — data team
 
-- **Supabase** — sign in with GitHub, then create a project. This is your Postgres database — nobody installs a database server.
-- **Firebase** — sign in with a Google account, create a project, and enable Firestore in test mode.
+- **Supabase** — one person signs in with GitHub and creates the project, then invites the rest of the team: Project Settings → Team → Invite. Everyone gets their own login and access to the SQL editor and connection string.
+- **Firebase** — one person signs in with a Google account, creates the project, and enables Firestore in test mode, then invites the rest of the team: Project Settings → Users and permissions → Add member (Editor role). Everyone else signs in with their own Google account.
 
 ### Installing on a new Accenture laptop
 
@@ -162,7 +159,7 @@ python --version   # must say 3.12.x
 ```
 
 > **If winget is not available:** it ships with Windows 11 but some managed images
-> remove it. Raise a ticket with IT or ask your facilitator — a pre-imaged USB is the backup.
+> remove it. Try downloading the zip from each corresponding website and adding to PATH, raise a ticket with IT or ask your facilitator otherwise.
 
 **4. Configure Git:**
 
@@ -186,41 +183,11 @@ You do not need to install Maven — the project comes with a wrapper that downl
 
 **6. Before you go to lunch on Day 1:**
 
-- Development team: `java -version` says 21, `ng version` works, and you can open a Spring project in IntelliJ.
+- Development team: `java -version` says 21, `ng version` works, and you can open a Spring project in VsCode.
 - Data team: `python --version` works, your virtual environment activates, and you can run a SELECT in the Supabase SQL editor.
 - Everyone: you can clone the repository, make a branch, and push it.
 
 If any of that is not true, tell a facilitator now. It does not get cheaper to fix this afternoon.
-
-### Accenture network notes
-
-**TLS interception.** Forcepoint One Endpoint re-signs outbound HTTPS. Windows and most
-tools trust it automatically. Two that do not:
-
-- **Python** — see `data/README.md` for the certificate error fix.
-- **npm** — if `npm install` fails with `SELF_SIGNED_CERT_IN_CHAIN`, run this once:
-
-  ```powershell
-  $cert = Get-ChildItem Cert:\LocalMachine\Root |
-      Where-Object { $_.Subject -match 'Forcepoint' } |
-      Select-Object -First 1
-  [IO.File]::WriteAllText("$HOME\corp-ca.pem",
-      "-----BEGIN CERTIFICATE-----`n" +
-      [Convert]::ToBase64String($cert.RawData, 'InsertLineBreaks') +
-      "`n-----END CERTIFICATE-----`n")
-  npm config set cafile "$HOME\corp-ca.pem"
-  ```
-
-**Proxy.** If a tool cannot reach the internet, set the proxy (address varies by site —
-check Internet Options → LAN settings or ask IT):
-
-```powershell
-$proxy = "http://proxy.accenture.com:8080"    # replace with your site's address
-$env:HTTP_PROXY  = $proxy
-$env:HTTPS_PROXY = $proxy
-npm config set proxy $proxy
-npm config set https-proxy $proxy
-```
 
 ---
 
@@ -282,7 +249,6 @@ or rate-limiting on the day, ask your facilitator how to load it.
 
 Standup at 09:00 each morning — fifteen minutes, standing up, run by a different person
 each day. Three things each: what I finished, what I am doing today, what is in my way.
-Anything in anybody's way is the facilitators' problem for the next ten minutes.
 
 End-of-day check-in at 17:00 — fifteen minutes. Each team shows the other what actually
 runs. Not slides, not a description. This is where you find out that your endpoint
@@ -291,25 +257,25 @@ returns a string where the dashboard expects a number, on Day 1 rather than Day 
 |  | Development team | Data team |
 |---|---|---|
 | **Day 1** | Setup. Create the repo. Get the Spring API and Angular app running. One endpoint returning hardcoded data, one Angular page showing it. | Setup. Explore OpenF1 by hand in Postman. Create the Supabase project. Write the Python script that pulls data into raw tables. Sketch the normalised schema on paper. |
-| **Day 2** | Connect Spring to Postgres and replace hardcoded data with real queries. Build out the endpoints and the dashboard: charts, a filter, routing. Get GitHub Actions building both apps. Deploy the Angular app to Vercel. | Build the normalised tables and load them properly. Add keys, relationships and an index. Write the views the API needs. Then the Python prediction, published to Firebase. |
-| **Day 3** | Finish the tiles, read the prediction from Firebase, handle the cases where things are slow or missing. Freeze at 12:00. Rehearse. | Tidy the queries, document where the data came from, check your numbers against the source. Freeze at 12:00. Rehearse. |
+| **Day 2** | Connect Spring to Postgres and replace hardcoded data with real queries. Build out the endpoints and the dashboard: charts, a filter, routing. Get GitHub Actions building both apps. Deploy the Angular app to Vercel. | Build the normalised tables and load them properly. Add keys, relationships and an index. Write the views the API needs. Then the Python ML prediction, published to Firebase. |
+| **Day 3** | Finish the tiles, read the ML prediction from Firebase, handle the cases where things are slow or missing. Freeze at 14:00. Rehearse. | Tidy the queries, document where the data came from, check your numbers against the source. Freeze at 14:00. Rehearse. |
 
-**Day 3, 14:00 — presentation.** Twelve minutes plus questions, to a panel from the
+**Day 3, 16:00 — presentation.** Twelve minutes plus questions, to a panel from the
 Software Engineering and Data & AI practices.
 
 | By the end of | This should exist |
 |---|---|
 | Day 1 | A repository both teams can push to. A running Spring endpoint and a running Angular page, connected, with fake data. A Supabase database with real data in raw tables, and a SELECT that returns rows. |
-| Day 2 | The Angular app deployed to a Vercel URL. The API reading real data from normalised tables through views. GitHub Actions building on every push. A prediction in Firebase. |
-| Day 3, 12:00 | Everything above, working together, with the four dashboard tiles finished. No new features after this point. |
+| Day 2 | The Angular app deployed to a Vercel URL. The API reading real data from normalised tables through views. GitHub Actions building on every push. A ML prediction in Firebase. |
+| Day 3, 14:00 | Everything above, working together, with the four dashboard tiles finished. No new features after this point. |
 
 ---
 
 ## Tasks — development team
 
 You get the commands for the parts that are just typing. Everything else is a goal, a
-nudge towards the right concepts, and a definition of done — work it out from the
-documentation with your assistant beside you. That is the actual job.
+nudge towards the right concepts, and a definition of done. Most issues should be able to be worked out from the
+documentation and with your AI assistant beside you.
 
 ### D1 — Repository and Git workflow
 
@@ -330,7 +296,7 @@ other team.
 ### D1 — Get the API running, then make it yours
 
 The project is already in `api/` — Spring Boot 4, Java 21, one endpoint returning a
-hardcoded example. Open it in IntelliJ and run it.
+hardcoded example. Open it in VSCode and run it.
 
 ```bash
 cd api
@@ -347,7 +313,7 @@ and the other team has seen them.
 **Hints:**
 - Understand the layers before you fill them in: controller handles HTTP, service holds logic, repository talks to the database. Putting a SQL query in a controller works, and is the thing you will be asked to justify.
 - Return objects, not strings. Let Spring turn them into JSON.
-- A hardcoded response is not a shortcut — it is what lets the front end be built today instead of Wednesday.
+- A hardcoded response is not a shortcut — it is what lets the front end be built today instead of tomorrow.
 
 ### D1 — Get the dashboard running, then build a tile
 
@@ -417,7 +383,7 @@ dashboard on somebody's phone.
 
 ### D3 — Finish and harden
 
-- Read the prediction from Firebase and put it on the dashboard next to the real number.
+- Read the ML prediction from Firebase and put it on the dashboard next to the real number.
 - Handle the three states every tile has: loading, no data, and something went wrong. Stop the API and look at your own dashboard.
 - Check it at phone width and make sure it can be navigated with a keyboard.
 
@@ -514,7 +480,7 @@ types they were promised.
 - Decide what a missing value means. A null lap time is not a lap time of zero.
 - If a view takes more than a second, look at what it is scanning before you look at anything else.
 
-### D2 — One prediction, in Python, on the dashboard
+### D2 — One ML prediction, in Python, on the dashboard
 
 Read from your normalised tables, fit something simple with scikit-learn, and publish the
 result to Firestore where the Angular app can read it.
@@ -551,7 +517,7 @@ real value beside it, and a number describing how good the model is.
 
 ## What finished looks like
 
-- Four tiles on one screen, each answering a question a person would actually ask, one of them showing your prediction against reality.
+- Four tiles on one screen, each answering a question a person would actually ask, one of them showing your ML prediction against reality.
 - One filter that visibly changes at least two tiles.
 - The dashboard on a public Vercel URL, working on a phone.
 - The API reading real data from normalised tables through views.
@@ -563,7 +529,7 @@ real value beside it, and a number describing how good the model is.
 
 ## The presentation
 
-Day 3 at 14:00. Twelve minutes and five for questions, to a panel from both practices.
+Day 3 at 16:00. ten minutes and five for questions, to a panel from both practices.
 Live, from the deployed URL. Five slides at most — the product is the presentation, and
 everybody speaks about their own work.
 
@@ -571,13 +537,12 @@ everybody speaks about their own work.
 2. The demo. Someone answering a real question. Use the filter. Break something on purpose and show that it fails gracefully.
 3. The database. Show the schema. Explain one normalisation decision you made and what it would have cost you to skip it.
 4. The application. One slide on how the pieces fit, and what you would do differently.
-5. The prediction. What it predicts, how well, and how you know.
+5. The ML prediction. What it predicts, how well, and how you know.
 6. One thing that went wrong, and one thing your AI assistant got wrong. Both are more interesting than the parts that worked.
 
 **Before you present:** wake everything up thirty minutes beforehand — free-tier services
 go to sleep and take longer to wake than you have. Rehearse twice, standing, from the
-deployed URL rather than from localhost. Record a video of the whole demo working before
-the rehearsal. If the wifi fails, you present the recording and nobody minds.
+deployed URL rather than from localhost.
 
 ---
 
@@ -601,7 +566,7 @@ now. Four rules come with it.
 - **Secrets in the repository.** A database password pushed to GitHub is found by strangers within minutes. Use environment variables and Actions secrets. If it happens, tell a facilitator, rotate the password, then worry about the history.
 - **Environment variables set on your laptop are not set in Vercel or in Actions.** This is behind most of the "but it works locally" hours you will lose.
 - **Free tiers go to sleep, and public APIs rate-limit you.** Do not hammer the source from a build that runs on every push. Pull once, store it, and work from your own database.
-- **Never force-push the branch everyone is working on.** Especially not twenty minutes before a rehearsal.
+- **Never force-push the branch everyone is working on.** Especially not twenty minutes before the presentation.
 - **"It works" means it works for somebody else, from the deployed URL, without you in the room.** Until then it has merely not failed in front of you yet.
 
 ---
