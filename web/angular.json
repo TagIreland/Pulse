@@ -45,8 +45,8 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "configurations": {
-            "production": { "buildTarget": "pulse-web:production" },
-            "development": { "buildTarget": "pulse-web:development" }
+            "production": { "buildTarget": "pulse-web:build:production" },
+            "development": { "buildTarget": "pulse-web:build:development" }
           },
           "defaultConfiguration": "development"
         }
