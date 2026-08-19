@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 
 import { ApiService, Session } from '../api.service';
 import { environment } from '../../environments/environment';
@@ -14,6 +14,7 @@ type TileState = 'loading' | 'ready' | 'empty' | 'error';
  */
 @Component({
   selector: 'app-dashboard',
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {
