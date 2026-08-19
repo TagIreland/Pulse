@@ -17,12 +17,126 @@ what they are building.
 |---|---|---|
 | Git | any recent | `git --version` |
 | Java | 21 | `java -version` |
-| Node | 20 or newer | `node -v` |
-| Python | 3.11 or newer | `python3 --version` |
+| Node | 22 or newer | `node -v` |
+| Python | 3.11 or newer | `python --version` |
 
 The development team also needs IntelliJ IDEA (Community is fine) and the Angular CLI
 (`npm install -g @angular/cli`). Both teams want Postman. Nobody needs to install
 Postgres — the database is hosted on Supabase.
+
+---
+
+## Installing on a new Accenture laptop
+
+These are the first steps on a machine that has nothing on it yet. Run PowerShell as a
+normal user throughout — you do not need admin, and the installs below do not require it.
+
+### 1. Check what Software Center already has
+
+Open **Software Center** (search in the Start menu). Some cohorts get Git and Python
+pre-approved; if yours does, install from there first rather than bypassing the managed
+channel.
+
+### 2. Install the tools via winget
+
+Open PowerShell and run the following. Each line is independent — if one fails, skip it
+and note it; the tools are available through other routes.
+
+```powershell
+# Git
+winget install --id Git.Git -e
+
+# Java 21 (Eclipse Temurin LTS)
+winget install --id EclipseAdoptium.Temurin.21.JDK -e
+
+# Node.js 22 LTS
+winget install --id OpenJS.NodeJS.22 -e
+
+# Python 3.12
+winget install --id Python.Python.3.12 -e
+
+# IntelliJ IDEA Community (dev team only)
+winget install --id JetBrains.IntelliJIDEA.Community -e
+
+# Postman
+winget install --id Postman.Postman -e
+```
+
+After each install, **close and reopen PowerShell** before testing. winget writes to
+`PATH` but the running shell does not pick it up until restarted.
+
+Verify:
+
+```powershell
+git --version
+java -version          # must say version 21
+node -v                # must say v22.x.x or higher
+python --version       # must say 3.12.x
+```
+
+> **If winget is not available:** it ships with Windows 11 but some managed images
+> remove it. In that case raise a ticket with IT to install the above tools, or ask your
+> facilitator — a pre-imaged USB is the backup.
+
+### 3. Configure Git
+
+```powershell
+git config --global user.name "Your Name"
+git config --global user.email "your.name@accenture.com"
+```
+
+Then authenticate to GitHub. The easiest way on a managed laptop is a personal access
+token (classic, `repo` scope):
+
+1. GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token
+2. Copy the token. When Git first asks for a password, paste it.
+3. Windows Credential Manager will save it so you are not asked again.
+
+### 4. Clone and run
+
+```powershell
+git clone https://github.com/TagIreland/Pulse.git
+cd Pulse
+```
+
+Then follow the **Running the three pieces** section below.
+
+### 5. Accenture network notes
+
+**TLS interception.** Forcepoint One Endpoint re-signs outbound HTTPS. Windows and most
+tools trust it automatically. Two tools that do not:
+
+- **Python** — see the certificate error section in `data/README.md`.
+- **npm** — if `npm install` fails with `SELF_SIGNED_CERT_IN_CHAIN`, run this once:
+
+  ```powershell
+  # Export Forcepoint's root cert from the Windows store as PEM
+  $cert = Get-ChildItem Cert:\LocalMachine\Root |
+      Where-Object { $_.Subject -match 'Forcepoint' } |
+      Select-Object -First 1
+  [IO.File]::WriteAllText("$HOME\corp-ca.pem",
+      "-----BEGIN CERTIFICATE-----`n" +
+      [Convert]::ToBase64String($cert.RawData, 'InsertLineBreaks') +
+      "`n-----END CERTIFICATE-----`n")
+  npm config set cafile "$HOME\corp-ca.pem"
+  ```
+
+  If you cannot find a Forcepoint cert by that name, export whichever root cert is
+  present that is not a standard public CA — your facilitator can confirm which one.
+
+**Proxy.** If you are on the corporate VPN or a wired office connection and a tool
+cannot reach the internet at all, set the proxy. The address varies by site; ask IT
+or check Internet Options → LAN settings:
+
+```powershell
+$proxy = "http://proxy.accenture.com:8080"    # replace with your site's address
+$env:HTTP_PROXY  = $proxy
+$env:HTTPS_PROXY = $proxy
+npm config set proxy $proxy
+npm config set https-proxy $proxy
+```
+
+Add these to your PowerShell profile (`$PROFILE`) if you want them across all sessions.
 
 ---
 
@@ -98,7 +212,7 @@ python fetch.py --endpoint sessions --year 2024 --dry-run
 ## Layout
 
 ```
-api/     Spring Boot 3 / Java 21. One endpoint returning a hardcoded example.
+api/     Spring Boot 4 / Java 21. One endpoint returning a hardcoded example.
 web/     Angular. One component, one service, one tile, chart.js installed.
 data/    Python. fetch.py pulls from OpenF1; predict.py is the Day 2 prediction.
          sql/ holds the schema you design.
