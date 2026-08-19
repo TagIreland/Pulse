@@ -117,12 +117,12 @@ browser-based fallback.
 
 ### Accounts — development team
 
-- **Vercel** — sign in with GitHub. This will host the Angular app.
+- **Vercel** — one person signs in with GitHub and creates the project. The free Hobby plan is personal, so only one account owns the deployment. Everyone else contributes by pushing to the repo — Vercel picks up the push via GitHub and deploys automatically. The others do not need a Vercel account.
 
 ### Accounts — data team
 
-- **Supabase** — sign in with GitHub, then create a project. This is your Postgres database — nobody installs a database server.
-- **Firebase** — sign in with a Google account, create a project, and enable Firestore in test mode.
+- **Supabase** — one person signs in with GitHub and creates the project, then invites the rest of the team: Project Settings → Team → Invite. Everyone gets their own login and access to the SQL editor and connection string.
+- **Firebase** — one person signs in with a Google account, creates the project, and enables Firestore in test mode, then invites the rest of the team: Project Settings → Users and permissions → Add member (Editor role). Everyone else signs in with their own Google account.
 
 ### Installing on a new Accenture laptop
 
@@ -175,11 +175,11 @@ Authenticate to GitHub with a personal access token (classic, `repo` scope):
 GitHub → Settings → Developer settings → Personal access tokens → Generate new token.
 When Git first asks for a password, paste the token. Windows Credential Manager saves it.
 
-**5. Angular CLI and Vercel CLI (development team):**
+**5. Angular CLI (development team) and Vercel CLI (one person only):**
 
 ```powershell
-npm install -g @angular/cli
-npm install -g vercel
+npm install -g @angular/cli   # everyone on the dev team
+npm install -g vercel         # only the person who will run the deployment
 ```
 
 You do not need to install Maven — the project comes with a wrapper that downloads its own.
@@ -448,7 +448,7 @@ it into raw tables — one table per endpoint, columns as they arrive, no cleani
 # .env (never committed)
 DATABASE_URL=postgresql://postgres:<password>@<host>:5432/postgres
 
-python fetch.py --endpoint laps --session 9158
+python fetch.py --endpoint laps --session 9472
 ```
 
 ```sql
@@ -564,7 +564,7 @@ real value beside it, and a number describing how good the model is.
 ## The presentation
 
 Day 3 at 14:00. Twelve minutes and five for questions, to a panel from both practices.
-Live, from the deployed URL. Five slides at most — the product is the presentation, and
+Live, from the deployed URL. Six slides at most — the product is the presentation, and
 everybody speaks about their own work.
 
 1. What it does and who would use it. Thirty seconds. Do not open with the architecture.
