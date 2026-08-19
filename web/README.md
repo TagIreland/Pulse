@@ -18,6 +18,9 @@ src/environments/environment.prod.ts the API address in the production build —
 
 ## Deploying
 
+One person per team owns the Vercel deployment — nominate them on Day 1. Only that
+person needs to run the commands below; everyone else deploys by pushing to the repo.
+
 ```bash
 npm install -g vercel
 vercel link
