@@ -9,6 +9,40 @@ cp .env.example .env               # then fill it in. Never commit it.
 python fetch.py --endpoint sessions --year 2024 --dry-run
 ```
 
+## If a fetch fails with a certificate error
+
+On the Accenture network, Forcepoint One Endpoint sometimes terminates and re-signs TLS.
+Windows trusts its root certificate, so browsers and PowerShell are unaffected — but
+Python's `requests` validates against the `certifi` bundle instead of the Windows store,
+and that bundle has never heard of Forcepoint. When it happens you get:
+
+```
+ssl.SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify
+failed: self-signed certificate in certificate chain
+```
+
+It is intermittent — the same command often works on the next run — so try again before
+you do anything else. If it persists, make Python use the operating system trust store:
+
+```bash
+pip install truststore
+python -c "import truststore; truststore.inject_into_ssl(); exec(open('fetch.py').read())" --endpoint sessions --year 2024 --dry-run
+```
+
+or set a CA bundle for the shell instead, which is tidier if you are running several
+commands (PowerShell):
+
+```powershell
+$env:REQUESTS_CA_BUNDLE = "$env:USERPROFILE\corp-ca-bundle.pem"   # exported from Cert:\LocalMachine\Root
+```
+
+Do **not** reach for `verify=False`, and do not add it to `fetch.py`. It replaces a
+working chain of trust with none at all, the error goes away, and the habit gets copied
+into something that matters later.
+
+Unrelated but same cause: occasional `ReadTimeout` against public APIs through the proxy.
+Retry; `fetch.py` has no retry logic yet, and adding some is a reasonable improvement.
+
 ## What is here
 
 ```

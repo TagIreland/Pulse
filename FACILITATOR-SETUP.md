@@ -31,10 +31,24 @@ curl http://localhost:8080/api/sessions
 ```bash
 cd web
 npm install
-npm start          # check http://localhost:4200 loads and the tile shows data
+npm start          # check http://localhost:4200 loads, and that the tile renders
+                   # and reports a CORS error
 npm run build      # check the production build passes
 git add package-lock.json && git commit -m "add lockfile"
 ```
+
+The CORS error is the correct result, not a fault you should fix here.
+`WebConfig.addCorsMappings` in the API is deliberately empty — making that call succeed
+is the joiners' Day 1 exercise, and if you fix it now and commit, you have removed the
+exercise. What you are checking is that the tile renders, reaches the API, and fails for
+the one reason you expect.
+
+To see it properly, start the API in another terminal first (`cd api && ./mvnw
+spring-boot:run`). A `200` on `curl http://localhost:8080/api/sessions` with no
+`Access-Control-Allow-Origin` header in the response is exactly right: the API is
+healthy and the browser is the thing refusing. If the tile instead reports that it
+cannot reach the API at all, that is a real failure — check the API is up on 8080 and
+that `apiBaseUrl` in `web/src/environments/environment.ts` still points at it.
 
 Committing `package-lock.json` matters: without it every new joiner resolves slightly
 different dependency versions, and you will spend Wednesday afternoon on it.
